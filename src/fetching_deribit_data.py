@@ -3,8 +3,8 @@ import websockets
 import json
 import sys
 
-from typing import Dict
 from loguru import logger
+from typing import Dict
 from datetime import timedelta, datetime
 
 
