@@ -6,7 +6,12 @@ import sys
 from loguru import logger
 from typing import Dict
 from datetime import timedelta, datetime
-
+from rabbitmq_handler import RabbitMQHandler
+from config.rabbitmq_config import (
+    QUEUES,
+    MARKET_INFO_RECEIVED_EXCHANGE,
+    MARKET_INFO_ROUTING_KEY,
+)
 
 client_id = "HD5Poh0t"
 client_secret = "B4rgiZopaPg83Od0oah037IUPJ96teR8-1svxUmeFB8"
@@ -16,9 +21,19 @@ channels = [
     "ticker.BTC-29DEC23-20000-C.raw",
 ]
 
+queue_name = QUEUES.get("marquet_information_queue")
+rabbit_mq_producer = RabbitMQHandler(
+    "localhost", queue_name
+).setup_queue_for_publishing(MARKET_INFO_RECEIVED_EXCHANGE, MARKET_INFO_ROUTING_KEY)
+
 
 class DeribitFetching:
-    def __init__(self, client_id: str, client_secret: str, channels: list) -> None:
+    def __init__(
+        self,
+        client_id: str,
+        client_secret: str,
+        channels: list,
+    ) -> None:
         self.loop = asyncio.get_event_loop()
 
         self.deribit_url: str = self.get_url()
@@ -92,7 +107,8 @@ class DeribitFetching:
                     if msg["method"] == "subscription":
                         # TODO: To be sent to the persisting system
                         data = msg["params"]["data"]
-                        logger.debug(data)
+                        print("message received:")
+                        rabbit_mq_producer.publish_message(data)
 
     def get_url(self):
         url = "wss://test.deribit.com/ws/api/v2"
