@@ -61,6 +61,7 @@ class DeribitFetching:
             logger.error("Unable to connect to Deribit {}".format(deribit_url))
 
     async def runner(self) -> None:
+        counter = 0
         async with self.connectws(self.deribit_url) as self.ws_client:
             logger.info("Connected successfully, proceeding to authentication ...")
             await self.auth()
@@ -105,10 +106,11 @@ class DeribitFetching:
                     if msg["method"] == "heartbeat":
                         await self.heartbeat_response()
                     if msg["method"] == "subscription":
-                        # TODO: To be sent to the persisting system
                         data = msg["params"]["data"]
                         print("message received:")
                         rabbit_mq_producer.publish_message(data)
+                        print(f"sent {counter} data")
+                        counter = counter + 1
 
     def get_url(self):
         url = "wss://test.deribit.com/ws/api/v2"

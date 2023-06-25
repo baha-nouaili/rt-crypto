@@ -22,7 +22,6 @@ class RabbitMQHandler:
         return self
 
     def publish_message(self, message):
-        print(f"sending message, {message}")
         self.channel.basic_publish(
             exchange=self.exchange,
             routing_key=self.routing_key,

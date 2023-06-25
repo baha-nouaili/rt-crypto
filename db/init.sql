@@ -7,10 +7,10 @@ CREATE TABLE market_informations (
   currency VARCHAR(255),
   maturity VARCHAR(255),
   strike DECIMAL,
-  type CHAR(1),
-  created_at TIMESTAMP,
+  type CHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   underlying_price DECIMAL,
-  timestamp TIMESTAMP,
+  timestamp BIGINT,
   settlement_price DECIMAL,
   open_interest DECIMAL,
   min_price DECIMAL,
@@ -27,3 +27,4 @@ CREATE TABLE market_informations (
   best_ask_amount DECIMAL,
   ask_iv DECIMAL
 )
+
