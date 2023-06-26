@@ -22,6 +22,7 @@ channels = [
 ]
 
 queue_name = QUEUES.get("marquet_information_queue")
+
 rabbit_mq_producer = RabbitMQHandler(
     "localhost", queue_name
 ).setup_queue_for_publishing(MARKET_INFO_RECEIVED_EXCHANGE, MARKET_INFO_ROUTING_KEY)
@@ -61,7 +62,6 @@ class DeribitFetching:
             logger.error("Unable to connect to Deribit {}".format(deribit_url))
 
     async def runner(self) -> None:
-        counter = 0
         async with self.connectws(self.deribit_url) as self.ws_client:
             logger.info("Connected successfully, proceeding to authentication ...")
             await self.auth()
@@ -107,10 +107,9 @@ class DeribitFetching:
                         await self.heartbeat_response()
                     if msg["method"] == "subscription":
                         data = msg["params"]["data"]
-                        print("message received:")
+                        # publishing data to rabbitmq
                         rabbit_mq_producer.publish_message(data)
-                        print(f"sent {counter} data")
-                        counter = counter + 1
+                        print("data dispatched to rabbitmq")
 
     def get_url(self):
         url = "wss://test.deribit.com/ws/api/v2"
