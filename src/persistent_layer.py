@@ -1,6 +1,7 @@
 import psycopg2
 import json
-import functools
+import time
+import sys
 
 
 from rabbitmq_handler import RabbitMQHandler
@@ -13,17 +14,32 @@ class MarketDataProcessor:
         self.queue_name = queue_name
 
     def connect_to_db(self):
-        try:
-            self.db_conn = psycopg2.connect(
-                host="localhost",
-                database="rt_crypto",
-                user="postgres",
-                password="postgres",
-                port=5432,
-            )
-            print("connected to db successfully..")
-        except (Exception, psycopg2.DatabaseError) as error:
-            print(f"error while connection to the db {error}")
+        retry_delay = 1
+        max_retries = 4
+
+        attempt = 0
+
+        while attempt < max_retries:
+            try:
+                self.db_conn = psycopg2.connect(
+                    host="localhost",
+                    database="rt_crypto",
+                    user="postgres",
+                    password="postgres",
+                    port=5432,
+                )
+                print("connected to db successfully..")
+                return "connected"
+            except (Exception, psycopg2.DatabaseError):
+                print(f"error while connecting to the db")
+                attempt += 1
+
+            current_delay = retry_delay * (2**attempt)
+            print(f"retrying to connect to the db....")
+            time.sleep(current_delay)
+
+        print("DB is unreachable please retry later or call your sys admin to fix it")
+        sys.exit(1)
 
     def disconnect_from_db(self):
         if self.db_conn is not None:
@@ -96,7 +112,12 @@ class MarketDataProcessor:
                 cursor.execute(insert_script, insert_value)
                 self.db_conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print(f"error occured when inserting to the db {error}")
+            if error == "connection already closed" or self.db_conn.closed == 2:
+                response = self.connect_to_db()
+                if response == "connected":
+                    return self.insert_data_to_db(data)
+            else:
+                sys.exit(0)
 
     def handle_queue_message_insertion(self, channel, method, properties, body):
         try:
