@@ -1,0 +1,18 @@
+### The project is structured into two main components
+
+## The fetching component => fetching_deribit_data which is responsible for getting
+
+    ## real time crypto currency prices and sending them to a rabbitmq queue.
+
+## The persistence component => responsible for getting the data in the rabbitmq queue and inserting it to the db.
+
+### To run the project you must have rabbitmq and postgres processes running on your local env
+
+For that you can use the pre-configured docker-compose file which will bootstrap a postgres and rabbitmq instances
+
+Then to run the project follow the commands below
+
+1 - python3 -m venv venv (to create a virtual env)
+2 - pip install -r requirements.txt
+3 - python3 src/persistent_layer.py (to start listenning for incoming message)
+3 - python3 src/fetching_deribit_data.py (to start publishing messages to the queue)
