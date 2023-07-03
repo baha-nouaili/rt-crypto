@@ -13,11 +13,9 @@ class MarketDataProcessor:
 
     def connect_to_db(self):
         retry_delay = 1
-        max_retries = 4
-
         attempt = 0
 
-        while attempt < max_retries:
+        while True:
             try:
                 self.db_conn = psycopg2.connect(
                     host="db",
@@ -36,8 +34,6 @@ class MarketDataProcessor:
             print(f"retrying to connect to the db....")
             time.sleep(current_delay)
 
-        print("DB is unreachable please retry later or call your sys admin to fix it")
-        sys.exit(1)
 
     def disconnect_from_db(self):
         if self.db_conn is not None:
