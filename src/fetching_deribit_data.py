@@ -24,7 +24,7 @@ channels = [
 queue_name = QUEUES.get("marquet_information_queue")
 
 rabbit_mq_producer = RabbitMQHandler(
-    "localhost", queue_name
+    "rabbitmq", queue_name
 ).setup_queue_for_publishing(MARKET_INFO_RECEIVED_EXCHANGE, MARKET_INFO_ROUTING_KEY)
 
 

@@ -3,10 +3,8 @@ import json
 import time
 import sys
 
-
 from rabbitmq_handler import RabbitMQHandler
 from config.rabbitmq_config import QUEUES
-
 
 class MarketDataProcessor:
     def __init__(self, queue_name: str) -> None:
@@ -22,7 +20,7 @@ class MarketDataProcessor:
         while attempt < max_retries:
             try:
                 self.db_conn = psycopg2.connect(
-                    host="localhost",
+                    host="db",
                     database="rt_crypto",
                     user="postgres",
                     password="postgres",
@@ -135,8 +133,8 @@ class MarketDataProcessor:
     def init_etl_process(self):
         self.connect_to_db()
         try:
-            rabbitmq_consumer = RabbitMQHandler("localhost", self.queue_name)
-            print("start listening for incoming connection...")
+            rabbitmq_consumer = RabbitMQHandler("rabbitmq", self.queue_name)
+            print("start listening for incoming messages...")
             rabbitmq_consumer.consume_messages(
                 callback=self.handle_queue_message_insertion
             )

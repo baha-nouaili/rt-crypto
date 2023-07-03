@@ -8,11 +8,8 @@
 
 ### To run the project you must have rabbitmq and postgres processes running on your local env
 
-For that you can use the pre-configured docker-compose file which will bootstrap a postgres and rabbitmq instances
+For that you can use the pre-configured docker compose file which will bootstrap a postgres, rabbitmq instances + it will bootsrap two python
+processes which are responsible for fetching the data and inserting it into the db. 
 
-Then to run the project follow the commands below
+To view the logs of the python process simply run this command `docker logs -f [container-id]`
 
-1 - python3 -m venv venv (to create a virtual env)
-2 - pip install -r requirements.txt
-3 - python3 src/persistent_layer.py (to start listenning for incoming message)
-3 - python3 src/fetching_deribit_data.py (to start publishing messages to the queue)
